@@ -75,8 +75,7 @@
     </style>
 </head>
 <body>
-    <header>
-    </header>
+
     <section>
         <div id="map"></div>
         <input type="text" id="destination_from" placeholder="Откуда?">
@@ -94,7 +93,7 @@
         function initMap() {
             var map = DG.map('map', {
                 center: [55.7522200, 37.6155600],
-                zoom: 12
+                zoom: 100
             });
 
             DG.marker([55.7522200, 37.6155600]).addTo(map).bindPopup('Нурлат-Такси').openPopup();
