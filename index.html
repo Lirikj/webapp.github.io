@@ -2,33 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <title>такси Нурлат</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Нурлат-Такси</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        body, html {
+            height: 100%;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
-        }
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-            text-align: center;
-        }
-        section {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            text-align: center;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 100 4px 2px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            margin: 50px auto;
+            font-family: Arial, sans-serif;
         }
         #map {
             width: 100%;
@@ -37,66 +20,105 @@
             border-radius: 10px;
             overflow: hidden;
         }
-        input[type="text"] {
-            width: 100%;
+        #controls {
             padding: 10px;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        input, button {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 0px;
             margin: 0px 0;
             border-radius: 0px;
             border: 0px solid #ccc;
-            box-sizing: border-box;
             text-align: center;
         }
-        button {
+        #requestRide {
+            margin-top: 10px;
             padding: 15px 70px;
-            font-size: 15px;
             background-color: #000;
             color: #fff;
             border: none;
             border-radius: 10px;
+            width: 100%;
             cursor: pointer;
+            font-size: 15px;
             margin: 10px auto;
         }
-        button:hover {
-            background-color: #333;
-        }
-
-        @media (max-width: 600px) {
-            section {
-                margin: 20px;
-                padding: 15px;
-            }
-            #map {
-                height: 200px;
-            }
-            button {
-                max-width: 100%;
-            }
+        #requestRide:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
+    <div id="map"></div>
+    <div id="controls">
+        <div class="input-group">
+            <input type="text" id="start" placeholder="Откуда?">
+            <input type="text" id="end" placeholder="Куда?">
+        </div>
 
-    <section>
-        <div id="map"></div>
-        <input type="text" id="destination_from" placeholder="Откуда?">
-        <input type="text" id="destination_to" placeholder="Куда?">
-        <button onclick="callTaxi()">Вызвать такси</button>
-    </section>
+        <button id="requestRide" disabled>Заказать</button>
+    </div>
 
-    <script src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
     <script>
-        
-        DG.then(function () {
-            initMap();
-        });
+        ymaps.ready(init);
+        let myMap, userPlacemark, route, selectedCar = null, carsMarkers = [];
 
-        function initMap() {
-            var map = DG.map('map', {
-                center: [55.7522200, 37.6155600],
-                zoom: 100
+        function init(){
+            myMap = new ymaps.Map("map", {
+                center: [54.428122, 50.804958], 
+                zoom: 12
+            });
+        }
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userCoords = [position.coords.latitude, position.coords.longitude];
+                    myMap.setCenter(userCoords, 14);
+                    userPlacemark = new ymaps.Placemark(userCoords, {
+                        hintContent: 'Вы здесь'
+                    }, {
+                        iconColor: '#1E90FF'
+                    });
+                    myMap.geoObjects.add(userPlacemark);
+                    loadAvailableCars(userCoords);
+                }, function(error) {
+                    alert('Не удалось определить ваше местоположение.');
+                });
+            } else {
+                alert('Ваш браузер не поддерживает геолокацию.');
+            }
+
+            document.getElementById('findRoute').addEventListener('click', function() {
+                const start = document.getElementById('start').value;
+                const end = document.getElementById('end').value;
+
+                if(start && end){
+                    buildRoute(start, end);
+                } else {
+                    alert('Пожалуйста, заполните оба поля.');
+                }
             });
 
-            DG.marker([55.7522200, 37.6155600]).addTo(map).bindPopup('Нурлат-Такси').openPopup();
+        function buildRoute(start, end){
+            if(route){
+                myMap.geoObjects.remove(route);
+            }
+
+            ymaps.route([start, end]).then(function (res) {
+                route = res;
+                myMap.geoObjects.add(route);
+                myMap.setBounds(route.getBounds(), {
+                    checkZoomRange: true
+                });
+            }, function (err) {
+                alert('Не удалось построить маршрут: ' + err.message);
+            });
         }
 
     </script>
