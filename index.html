@@ -32,14 +32,14 @@
             box-sizing: border-box;
             margin-top: 0px;
             margin: 0px 0;
-            border-radius: 0px;
+            border-radius: 10px;
             border: 0px solid #ccc;
             text-align: center;
         }
         #requestRide {
             margin-top: 10px;
             padding: 15px 10px;
-            background-color: #000000; /* Черный цвет фона */
+            background-color: #000000; 
             color: #ffffff;
             border: none;
             border-radius: 12px;
@@ -47,6 +47,11 @@
             cursor: pointer;
             font-size: 15px;
             margin: 10px auto;
+            height: 50px;
+            position: relative;        
+            display: flex;
+            justify-content: center;
+            align-items: center; 
         }
         #requestRide:disabled {
             background-color: #ccc;
@@ -59,7 +64,7 @@
     <div id="controls">
         <div class="input-group">
             <input type="text" id="start" placeholder="Откуда?">
-            <input type="text" id="end" placeholder="Куда?">
+            <input type="text" id="end" placeholder="Куда?"> 
         </div>
 
         <button id="requestRide" disabled>Заказать</button>
